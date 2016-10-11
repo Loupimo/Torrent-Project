@@ -10,24 +10,24 @@ import java.util.Vector;
 
 import org.apache.log4j.Logger;
 
-public class Parser implements Common
+public class Parser extends Common
 {
 	
-	///////////////
-	// Attributs //
-	///////////////
+	////////////////
+	// Attributes //
+	////////////////
 
-	long fileSize;				   // The file size
-	char[] datas;				   // The datas that contains the file
-	int offset;					   // The cursor position in the file
-	File torrentFile;		  	   // The current torrent file
-	Vector <Global> torrentParsed; // An array that contains every parsed info
+	public static long fileSize;			 // The file size
+	public static char[] datas;				 // The data that the file contains
+	public static int offset;				 // The cursor position in the file
+	protected File torrentFile;		  	     // The current torrent file
+	protected Vector <Global> torrentParsed; // An array that contains every parsed info
 	private static final Logger LOGGER = Logger.getLogger(Parser.class);
 
 	
-	//////////////////
-	// Constructeur //
-	//////////////////
+	/////////////////
+	// Constructor //
+	/////////////////
 	
 	public Parser(String torrentFileName)
 	{
@@ -37,9 +37,9 @@ public class Parser implements Common
 	}
 	
 	
-	//////////////
-	// Méthodes //
-	//////////////
+	/////////////
+	// Methods //
+	/////////////
 	
 	public void readFile()
 	{ // Read all the file
@@ -56,13 +56,25 @@ public class Parser implements Common
 			System.out.println();
 
 			for (int i = 0; i < fileSize ; i ++)
-			{ // Reads and stores all the datas in the datas array
+			{ // Reads and stores all the data in the data array
 				datas[i] = (char) br.read();
 			}
 			
 			LOGGER.info("\n\nEnd of File, nombre de caractères: " + fileSize + "\n\n");
 			
+			System.out.println("Parse data\n");
 			parseData();
+			
+			for (int i = 0; i < torrentParsed.size(); i++)
+			{
+				torrentParsed.elementAt(i).printGlobal();
+			}
+			
+			
+			getDicoCombinaisonFromString("annouce"); // Ceci est un exemple
+			
+			
+			
 		}
 		catch (FileNotFoundException e1) 
 		{
@@ -73,104 +85,61 @@ public class Parser implements Common
 			e.printStackTrace();
 		} 	
 	}
+	
+	
+	public void getDicoCombinaisonFromString(String target)
+	{ // Return the combination name / value of a given target
 
-	
-	
-	public void parseData()
-	{ // Parse the datas
+		int index;
+		Dictionary dicoRecup = null;
+		for (index = 0; index < torrentParsed.size(); index++)
+		{
+			if (torrentParsed.elementAt(index).getType() == "Dictionary")
+			{
+				dicoRecup = torrentParsed.elementAt(index).aDico;
+				break;
+			}
+		}
+
+		Object defRecup = null;
 		
-		System.out.println("Parse data from parser\n");
-		for (offset = 0; offset < fileSize; offset++)
+		
+		for (index = 0; index < dicoRecup.word.size(); index++)
 		{
-			//System.out.print("\noffset");
-			nextDataType(datas[offset]);
-
-			//System.out.println(", " + datas[offset]);
-			//System.out.println("offset");
+			if(dicoRecup.getWord(index).equals("announce"))
+			{
+				defRecup = dicoRecup.getWordDefinition(index);
+				break;
+			}
 		}
-		for (int i = 0; i < torrentParsed.size(); i++)
-		{
-			//System.out.println("Parsed Info: " + i);
-			torrentParsed.elementAt(i).printGlobal();
-		}
+		
+		System.out.println("\n\nMot: " + dicoRecup.getWord(index) + "\nValeur: " + defRecup);
+		
+		/*Pour l'instant cette fonction affiche juste la combinaison mot / valeur*/
+		/*Pour les récupérer très simple: dicoRecup.getWord(index) correspond au mot et defRecup à la valeur*/
 	}
 
 	
 	
-	public void nextDataType(char type)
-	{ // Determines the type of the next encountred data
-		
-		if (type == 'd')
-		{
-			//System.out.println("new dico from parser: " + offset + ", " + datas[offset]);
-			offset++;
-			torrentParsed.add(new Global (new Dictionnaries(this)));
-		}
-		else if (type == 'l')
-		{
-			//System.out.println("new list from parser: " + offset + ", " + datas[offset]);
-			torrentParsed.add(new Global(new Listes(this)));
-		}
-		else if (type <= 0x39 && type >= 0x30)
-		{ // If it's a number we look for delimiters (":") to get the length of the next string
-		  //System.out.println("get length string from dico: " + type);
-			String s_lengthOfNextString = "";
-			s_lengthOfNextString += type;
-
-			for (offset = offset++; offset < fileSize; offset++)
-			{
-				if (datas[offset] == ':')
-				{ // Delimiters found
-					offset++;
-					break;
-				}
-				else s_lengthOfNextString += datas[offset]; // Adds the current number to the end of the string
-			}
-
-			//System.out.println(s_lengthOfNextString);
-			int i_lengthOfNextString = Integer.parseInt(s_lengthOfNextString); // Converts the string to int
-			getString(i_lengthOfNextString);
-		}
-
-		else if (type == '-' || type == 'i')
-		{ // It's an integer (which constitutes a definition)
-		  //System.out.println("get an integer from dico: " + type);
-			String s_integer = "";
-
-			if (type == '-')
-			{
-				offset++; // After the "-" there's always an "i" which is the begin tag of an integer
-				s_integer += type;
-			}
-
-			for (offset = offset++; offset < fileSize; offset++)
-			{
-				if (datas[offset] == 'e')
-				{ // Delimiters found
-					break;
-				}
-				else s_integer += datas[offset]; // Adds the current number to the end of the string
-			}
-
-			//System.out.println(s_integer);
-			torrentParsed.add(new Global(s_integer));
-		}
+	@Override
+	public void doCorrespondingDicoCreation()
+	{
+		torrentParsed.add(new Global(new Dictionary(this)));
 	}
 
 
 	
-	public void getString(int lengthOfString)
-	{ // Gets the string corresponding to the length
+	@Override
+	public void doCorrespondingListCreation()
+	{
+		torrentParsed.add(new Global(new List(this)));
+	}
 
-		String info = "";
-		for (int i = 0; i < lengthOfString; i++)
-		{
-			info += datas[offset];
-			offset++;
-		}
-		//System.out.println("string: " + info + ", length: " + lengthOfString);
+	
 
-		offset--; // Sets the cursor to the previous character for a proper analysis (to not interfer with the offset++ of the parseData function))
+	@Override
+	public void doCorrespondingAction(String info)
+	{
 		torrentParsed.add(new Global(info));
 	}
 }

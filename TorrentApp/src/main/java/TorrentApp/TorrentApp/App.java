@@ -21,7 +21,7 @@ public class App
 		}
 		else
 		{
-			String oo = "D:\\Documents\\Visual Studio 2015\\Projects\\TorrentParser\\Debug\\Assassins_Creed_IV_Black_Flag_Update_v1_02_with_DLC-RELOADED.torrent";
+			String oo = "Assassins_Creed_IV_Black_Flag_Update_v1_02_with_DLC-RELOADED.torrent"; // Chemin rentré en brutal pour accélérer les tests
 
 			Parser parse = new Parser(oo);
 			if (parse.torrentFile != null)

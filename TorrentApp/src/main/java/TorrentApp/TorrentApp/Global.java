@@ -3,20 +3,20 @@ package TorrentApp.TorrentApp;
 public class Global 
 {
 	
-	///////////////
-	// Attributs //
-	///////////////
+	////////////////
+	// Attributes //
+	////////////////
 	
-	Listes aList;
-	Dictionnaries aDico;
-	String aString;
+	protected List aList;		   // A List
+	protected Dictionary aDico; // A Dictionary
+	protected String aString;	   // A String
 	
 	
-	///////////////////
-	// Constructeurs //
-	///////////////////
+	//////////////////
+	// Constructors //
+	//////////////////
 	
-	public Global(Listes p_list, Dictionnaries p_dico, String p_string)
+	public Global(List p_list, Dictionary p_dico, String p_string)
 	{
 		aList = p_list;
 		aDico = p_dico;
@@ -25,7 +25,7 @@ public class Global
 	
 	
 	
-	public Global(Dictionnaries p_dico) 
+	public Global(Dictionary p_dico) 
 	{
 		aList = null;
 		aDico = p_dico;
@@ -34,7 +34,7 @@ public class Global
 	
 	
 	
-	public Global(Listes p_list) 
+	public Global(List p_list) 
 	{
 		aList = p_list;
 		aDico = null;
@@ -51,14 +51,25 @@ public class Global
 	}
 	
 	
-	//////////////
-	// Méthodes //
-	//////////////
+	/////////////
+	// Methods //
+	/////////////
+	
+	public String getType()
+	{ // Return type of the set value
+		
+		if (aDico != null) return "Dictionary";
+		else if (aList != null) return "List";
+		else if (aString != "") return "String";
+		else return null;
+	}
+	
+	
 	
 	public void printGlobal() 
 	{
 		if (aDico != null) aDico.printDico();
-		if (aList != null) aList.printListes();
+		if (aList != null) aList.printList();
 		if (aString != "") System.out.print(aString);
 	}
 }
