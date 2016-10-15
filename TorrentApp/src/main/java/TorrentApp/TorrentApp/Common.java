@@ -18,12 +18,10 @@ public abstract class Common
 		for ( ; Parser.offset < Parser.fileSize; Parser.offset++)
 		{
 			
-			LOG.debug(Parser.offset + ", " + Parser.datas[Parser.offset]);
+			LOG.debug(Parser.offset + ", " + (char) Parser.datas[Parser.offset]);
 
-			if (Parser.datas[Parser.offset] == 'e') break;
-			nextDataType(Parser.datas[Parser.offset]);
-			
-			//LOG.debug(", " + Parser.datas[Parser.offset-1]);
+			if ((char) Parser.datas[Parser.offset] == 'e') break;
+			nextDataType((char) Parser.datas[Parser.offset]);
 		}
 	}
 	
@@ -61,15 +59,14 @@ public abstract class Common
 			Parser.offset++;
 			for ( ; Parser.offset < Parser.fileSize; Parser.offset++)
 			{
-				if (Parser.datas[Parser.offset] == ':')
+				if ((char)Parser.datas[Parser.offset] == ':')
 				{ // Delimiters found
 					Parser.offset++;
 					break;
 				}
-				else s_lengthOfNextString += Parser.datas[Parser.offset]; // Adds the current number to the end of the string
+				else s_lengthOfNextString += (char) Parser.datas[Parser.offset]; // Adds the current number to the end of the string
 			}
 
-			
 			LOG.debug(s_lengthOfNextString);
 			
 			int i_lengthOfNextString = Integer.parseInt(s_lengthOfNextString); // Converts the string to integer
@@ -92,16 +89,20 @@ public abstract class Common
 
 			for ( ; Parser.offset < Parser.fileSize; Parser.offset++)
 			{
-				if (Parser.datas[Parser.offset] == 'e')
+				if ((char) Parser.datas[Parser.offset] == 'e')
 				{ // Delimiters found
 					break;
 				}
-				else s_integer += Parser.datas[Parser.offset]; // Adds the current number to the end of the string
+				else s_integer += (char) Parser.datas[Parser.offset]; // Adds the current number to the end of the string
 			}
 	
 			LOG.debug(s_integer);
 			
 			doCorrespondingAction(s_integer);
+		}
+		else
+		{
+			LOG.debug("Problème là");
 		}
 	}
 	
@@ -111,13 +112,16 @@ public abstract class Common
 	{ // Gets the string corresponding to the given length
 
 		String info = "";
-		for (int i = 0; i < lengthOfString; i++)
+		int i;
+		for (i = 0; i < lengthOfString; i++)
 		{
-			info += Parser.datas[Parser.offset];
+			//if (Parser.datas[Parser.offset] == 0x00) Parser.datas[Parser.offset] = 0x39;
+			info += (char) Parser.datas[Parser.offset];
+			LOG.debug("char: " + (char) Parser.datas[Parser.offset] + ", offset: " + i);
 			Parser.offset++;
 		}
 		
-		LOG.debug("string: " + info + ", length: " + lengthOfString);
+		LOG.debug("string: " + info + ", length: " + i);
 		
 		Parser.offset--; // Sets the cursor to the previous character for a proper analysis (to not interfere with the offset++ of the parseData function))
 		doCorrespondingAction(info);

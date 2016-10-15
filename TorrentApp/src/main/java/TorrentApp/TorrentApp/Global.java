@@ -7,9 +7,9 @@ public class Global
 	// Attributes //
 	////////////////
 	
-	protected List aList;		   // A List
-	protected Dictionary aDico; // A Dictionary
-	protected String aString;	   // A String
+	public List aList;	     // A List
+	public Dictionary aDico; // A Dictionary
+	public String aString;   // A String
 	
 	
 	//////////////////
