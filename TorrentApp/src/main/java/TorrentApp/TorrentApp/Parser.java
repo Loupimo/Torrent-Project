@@ -70,9 +70,9 @@ public class Parser extends Common
 			}
 
 			//getDicoCombinationFromString ("files", null); // Ceci est un exemple
-			getStringFromList ("length", (List) getDicoCombinationFromString ("files", null)); // Ceci est un exemple
-			getInformation();
-			getDicoCombinationFromString ("private", null);		
+			//getStringFromList ("length", (List) getDicoCombinationFromString ("files", null)); // Ceci est un exemple
+			//getInformation();
+			//getDicoCombinationFromString ("private", null);		
 		}
 		catch (FileNotFoundException e1) 
 		{
@@ -88,14 +88,42 @@ public class Parser extends Common
 	
 	public void getInformation()
 	{ // Get all the information required to build the tracker request
-		String valAnnounce = getDicoCombinationFromString("announce",null);
-		Dictionary DicoInfo = getDicoCombinationFromString("info",null);
-		String valPieces = getDicoCombinationFromString("pieces",DicoInfo); 
-		System.out.println("valeur announce : "+valAnnounce+"valeur pieces"+valPieces);
+		//String valAnnounce = getDicoCombinationFromString("announce",null);
+		//Dictionary DicoInfo = getDicoCombinationFromString("info",null);
+		//String valPieces = getDicoCombinationFromString("pieces",DicoInfo); 
+		//System.out.println("valeur announce : "+valAnnounce+"valeur pieces"+valPieces);
 	}
 	
 	
+	
+	public byte[] getBencodedDicoInfo ()
+	{ // Return the info dictionary in the its Bencoded form (usually used to build the torrent info_hash)
+		
+		Dictionary DicoInfo = getDicoCombinationFromString("info", null);
+		
+		LOG.debug("beginOffset: " + DicoInfo.beginOffset + ", endOffset: " + DicoInfo.endOffset);
+		
+		byte[] bencodedInfo = new byte[DicoInfo.endOffset-DicoInfo.beginOffset]; // Same size as the retrieved dictionary
+		
+		int i;
+		int j = 0;
+		
+		for (i = DicoInfo.beginOffset; i < DicoInfo.endOffset; i++)
+		{ // Extracts the correct data from the torrent file
+			bencodedInfo [j] = Parser.datas [i];
+			j++;
+		}
+		
+		for (i = 0; i < bencodedInfo.length; i++)
+		{ // Prints the bencodedInfo array for debug
+			LOG.debug((char) bencodedInfo[i]);
+		}
+		
+		return bencodedInfo;
+	}
+	
 
+	
 	@SuppressWarnings("unchecked")
 	public <T> T getDicoCombinationFromString(String target, Dictionary temp)
 	{ // Return the combination name / value of a given target

@@ -1,10 +1,5 @@
 package TorrentApp.TorrentApp;
 
-import java.io.File;
-import java.io.FileInputStream;
-import java.io.IOException;
-
-import org.apache.commons.codec.digest.DigestUtils;
 
 /**
  * Hello world!
@@ -38,7 +33,7 @@ public class App
 			
 			
 			
-			try {
+			/*try {
 				File torrentFile = new File("sha1test.torrent");
 				long fileSize = torrentFile.length(); // Size of the file
 
@@ -48,13 +43,15 @@ public class App
 				iosTorrent = new FileInputStream (torrentFile);
 				iosTorrent.read(datas); // Read all bytes and stored them in the array
 				iosTorrent.close();
-				TrackerCommunicator tc = new TrackerCommunicator("http://t411.download/7d8c1038e6ddb08272ccdb7e1e13d6c0/announce", DigestUtils.sha1Hex(datas), "192.168.20.1", "6881", 0, 0, 1000, "started");
+				*/
+				TrackerCommunicator tc = new TrackerCommunicator(parse.getDicoCombinationFromString("announce", null), parse.getBencodedDicoInfo(), "192.168.20.1", "50755", 0, 10485760, 116023550, "started");
 				System.out.println(tc.HTTPGet());
-			} catch (IOException e) {
+			/*} catch (IOException e) {
 				// TODO Auto-generated catch block
 				e.printStackTrace();
-			}
+			}*/
 			
 		}
 	}
+	
 }

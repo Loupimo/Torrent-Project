@@ -5,6 +5,8 @@ import org.apache.log4j.Logger;
 public abstract class Common
 {
 	private static final Logger LOG = Logger.getLogger(Common.class);
+	protected int beginOffset;
+	protected int endOffset;
 	
 	/////////////
 	// Methods //
@@ -14,13 +16,17 @@ public abstract class Common
 	{ // Parse the data
 		
 		LOG.debug("Parse data from dico");
-
+		beginOffset = Parser.offset - 1;
 		for ( ; Parser.offset < Parser.fileSize; Parser.offset++)
 		{
 
 			LOG.debug(Parser.offset + ", " + (char) Parser.datas[Parser.offset]);
 
-			if ((char) Parser.datas[Parser.offset] == 'e') break;
+			if ((char) Parser.datas[Parser.offset] == 'e')
+			{
+				endOffset = Parser.offset + 1;
+				break;
+			}
 			nextDataType((char) Parser.datas[Parser.offset]);
 		}
 	}
