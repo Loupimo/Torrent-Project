@@ -31,26 +31,9 @@ public class App
 			}
 			System.out.println("\n\nFin Parser");
 			
-			
-			
-			/*try {
-				File torrentFile = new File("sha1test.torrent");
-				long fileSize = torrentFile.length(); // Size of the file
-
-				byte[] datas = new byte [(int)fileSize];
-				
-				FileInputStream iosTorrent;
-				iosTorrent = new FileInputStream (torrentFile);
-				iosTorrent.read(datas); // Read all bytes and stored them in the array
-				iosTorrent.close();
-				*/
-				TrackerCommunicator tc = new TrackerCommunicator(parse.getDicoCombinationFromString("announce", null), parse.getBencodedDicoInfo(), "192.168.20.1", "50755", 0, 10485760, 116023550, "started");
-				System.out.println(tc.HTTPGet());
-			/*} catch (IOException e) {
-				// TODO Auto-generated catch block
-				e.printStackTrace();
-			}*/
-			
+			//TrackerCommunicator tc = new TrackerCommunicator((String) parse.getDicoCombinationFromString("announce", null), parse.getBencodedDicoInfo(), "192.168.20.1", "50755", 0, 10485760, 116023550, "started");
+			//System.out.println(tc.HTTPGet());
+			new BDDLinker ("jdbc:mysql://localhost:8000/", "jul", "root", parse);
 		}
 	}
 	

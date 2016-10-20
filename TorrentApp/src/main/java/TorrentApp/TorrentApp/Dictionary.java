@@ -50,7 +50,7 @@ public class Dictionary extends Common {
 	
 	@SuppressWarnings("unchecked")
 	public <T> T getWordDefinition(int wordIndex)
-	{ // Return the definition of the corresponding word (T is a generic type which means it could be any Object but limited here to String, List and Dictionary)
+	{ // Return the definition of corresponding word (T is a generic type which means it could be any Object but limited here to String, List and Dictionary)
 		
 		if (def.elementAt(wordIndex).getType() == "Dictionary") return (T) def.elementAt(wordIndex).aDico;
 		else if (def.elementAt(wordIndex).getType() == "List") return (T) def.elementAt(wordIndex).aList;
@@ -58,6 +58,22 @@ public class Dictionary extends Common {
 		return null;
 	}
 
+	
+	
+	public int getWordIndexByString(String wordIndex)
+	{ // Return the position of given word
+		
+		for (int i = 0; i < word.size(); i++)
+		{
+			if(word.elementAt(i).aString.equals(wordIndex))
+			{
+				return i;
+			}
+		}
+		
+		return -1;
+	}
+	
 	
 	
 	public void printDico()
