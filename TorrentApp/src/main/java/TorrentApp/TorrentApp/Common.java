@@ -12,44 +12,65 @@ public abstract class Common
 	// Methods //
 	/////////////
 	
-	public void parseData()
+	public static String byteToHex (byte[] byteArray)
+	{ // Gives the hexadecimal form of given bytes 
+		
+		char[] hexArray = "0123456789ABCDEF".toCharArray();
+	
+		char[] hexChars = new char[byteArray.length * 2];
+		
+	    for ( int j = 0; j < byteArray.length; j++ )
+	    {
+	        int v = byteArray[j] & 0xFF; // Copies a bit to the result if it exists in both operands
+	        hexChars[j * 2] = hexArray[v >>> 4]; // The left operands value is moved right by the number of bits specified by the right operand and shifted values are filled up with zeros.
+	        hexChars[j * 2 + 1] = hexArray[v & 0x0F];
+	    }
+		
+	    LOG.debug(new String(hexChars));
+		
+		return (new String(hexChars));
+	}
+	
+	
+	
+	public void parseData(Parser parser)
 	{ // Parse the data
 		
-		LOG.debug("Parse data from dico");
-		beginOffset = Parser.offset - 1;
-		for ( ; Parser.offset < Parser.fileSize; Parser.offset++)
+		LOG.debug("Parse data");
+		beginOffset = parser.offset - 1;
+		for ( ; parser.offset < parser.fileSize; parser.offset++)
 		{
 
-			LOG.debug(Parser.offset + ", " + (char) Parser.datas[Parser.offset]);
+			LOG.debug(parser.offset + ", " + (char) parser.datas[parser.offset]);
 
-			if ((char) Parser.datas[Parser.offset] == 'e')
+			if ((char) parser.datas[parser.offset] == 'e')
 			{
-				endOffset = Parser.offset + 1;
+				endOffset = parser.offset + 1;
 				break;
 			}
-			nextDataType((char) Parser.datas[Parser.offset]);
+			nextDataType((char) parser.datas[parser.offset], parser);
 		}
 	}
 	
 	
 	
-	public void nextDataType(char type)
+	public void nextDataType(char type, Parser parser)
 	{ // Determines the type of the next encountered data
 		
 		if (type == 'd')
 		{ // Next data = new dictionary
 			
-			LOG.debug("new dico: " + Parser.offset + ", " + Parser.datas[Parser.offset]);
+			LOG.debug("new dico: " + parser.offset + ", " + parser.datas[parser.offset]);
 			
-			Parser.offset++;
+			parser.offset++;
 			doCorrespondingDicoCreation();
 		}
 
 		else if (type == 'l')
 		{ // Next datas = new list
-			Parser.offset++;
+			parser.offset++;
 			
-			LOG.debug("new list: " + Parser.offset + ", " + Parser.datas[Parser.offset]);
+			LOG.debug("new list: " + parser.offset + ", " + parser.datas[parser.offset]);
 			
 			doCorrespondingListCreation();
 		}
@@ -62,21 +83,21 @@ public abstract class Common
 			String s_lengthOfNextString = "";
 			s_lengthOfNextString += type;
 
-			Parser.offset++;
-			for ( ; Parser.offset < Parser.fileSize; Parser.offset++)
+			parser.offset++;
+			for ( ; parser.offset < parser.fileSize; parser.offset++)
 			{
-				if ((char)Parser.datas[Parser.offset] == ':')
+				if ((char)parser.datas[parser.offset] == ':')
 				{ // Delimiters found
-					Parser.offset++;
+					parser.offset++;
 					break;
 				}
-				else s_lengthOfNextString += (char) Parser.datas[Parser.offset]; // Adds the current number to the end of the string
+				else s_lengthOfNextString += (char) parser.datas[parser.offset]; // Adds the current number to the end of the string
 			}
 			
 			LOG.debug(s_lengthOfNextString);
 			
 			int i_lengthOfNextString = Integer.parseInt(s_lengthOfNextString); // Converts the string to integer
-			getString(i_lengthOfNextString);
+			getString(i_lengthOfNextString, parser);
 		}
 
 		else if (type == '-' || type == 'i')
@@ -85,21 +106,21 @@ public abstract class Common
 			LOG.debug("get an integer from listes: " + type);
 			
 			String s_integer = "";
-			Parser.offset++;
+			parser.offset++;
 	
 			if (type == '-')
 			{
-				Parser.offset++; // After the "-" there's always an "i" which is the begin tag of an integer
+				parser.offset++; // After the "-" there's always an "i" which is the begin tag of an integer
 				s_integer += type;
 			}
 
-			for ( ; Parser.offset < Parser.fileSize; Parser.offset++)
+			for ( ; parser.offset < parser.fileSize; parser.offset++)
 			{
-				if ((char) Parser.datas[Parser.offset] == 'e')
+				if ((char) parser.datas[parser.offset] == 'e')
 				{ // Delimiters found
 					break;
 				}
-				else s_integer += (char) Parser.datas[Parser.offset]; // Adds the current number to the end of the string
+				else s_integer += (char) parser.datas[parser.offset]; // Adds the current number to the end of the string
 			}
 	
 			LOG.debug(s_integer);
@@ -110,7 +131,7 @@ public abstract class Common
 	
 	
 	
-	public void getString(int lengthOfString)
+	public void getString(int lengthOfString, Parser parser)
 	{ // Gets the string corresponding to the given length
 
 		String info = "";
@@ -118,15 +139,15 @@ public abstract class Common
 		int i;
 		for (i = 0; i < lengthOfString; i++)
 		{
-			//if (Parser.datas[Parser.offset] == 0x00) Parser.datas[Parser.offset] = 0x39;
-			info += (char) Parser.datas[Parser.offset];
-			LOG.debug("char: " + (char) Parser.datas[Parser.offset] + ", offset: " + i);
-			Parser.offset++;
+			//if (parser.datas[parser.offset] == 0x00) parser.datas[parser.offset] = 0x39;
+			info += (char) parser.datas[parser.offset];
+			LOG.debug("char: " + (char) parser.datas[parser.offset] + ", offset: " + i);
+			parser.offset++;
 		}
 		
 		LOG.debug("string: " + info + ", length: " + i);
 		
-		Parser.offset--; // Sets the cursor to the previous character for a proper analysis (to not interfere with the offset++ of the parseData function))
+		parser.offset--; // Sets the cursor to the previous character for a proper analysis (to not interfere with the offset++ of the parseData function))
 		doCorrespondingAction(info);
 	}
 	

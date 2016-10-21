@@ -5,11 +5,12 @@ import java.util.Vector;
 import org.apache.log4j.Logger;
 
 
-public class Dictionary extends Common {
+public class Dictionary extends Common
+{
 
-	///////////////
+	////////////////
 	// Attributes //
-	///////////////
+	////////////////
 	
 	protected Parser parser; 		 // The common parser where are stored all the data, file size and the offset
 	protected Vector<Global> word;   // A word of dictionary. It could be a List, a string and even a Dictionary
@@ -28,7 +29,7 @@ public class Dictionary extends Common {
 		word = new Vector<Global> ();
 		def = new Vector<Global> ();
 		wordOrDef = 0;
-		parseData();
+		parseData(parser);
 	}
 	
 	
@@ -98,7 +99,7 @@ public class Dictionary extends Common {
 		if (wordOrDef == 0)
 		{ // It's a word
 			
-			LOGGER.debug("new word from dico: " + Parser.offset + ", " + Parser.datas[Parser.offset]);
+			LOGGER.debug("new word from dico: " + parser.offset + ", " + parser.datas[parser.offset]);
 
 			word.add(new Global(new Dictionary(parser)));
 			wordOrDef = 1;
@@ -106,7 +107,7 @@ public class Dictionary extends Common {
 		else
 		{ // It's a definition
 			
-			LOGGER.debug("new def from dico: " + Parser.offset + ", " + Parser.datas[Parser.offset]);
+			LOGGER.debug("new def from dico: " + parser.offset + ", " + parser.datas[parser.offset]);
 
 			def.add(new Global(new Dictionary(parser)));
 			wordOrDef = 0;
@@ -121,14 +122,14 @@ public class Dictionary extends Common {
 		if (wordOrDef == 0)
 		{ // It's a word
 			
-			LOGGER.debug("new word from dico: " + Parser.offset + ", " + Parser.datas[Parser.offset]);
+			LOGGER.debug("new word from dico: " + parser.offset + ", " + parser.datas[parser.offset]);
 			word.add(new Global(new List(parser)));
 			wordOrDef = 1;
 		}
 		else
 		{ // It's a definition
 			
-			LOGGER.debug("new def from dico: " + Parser.offset + ", " + Parser.datas[Parser.offset]);
+			LOGGER.debug("new def from dico: " + parser.offset + ", " + parser.datas[parser.offset]);
 
 			def.add(new Global(new List(parser)));
 			wordOrDef = 0;
@@ -143,7 +144,7 @@ public class Dictionary extends Common {
 		if (wordOrDef == 0)
 		{ // It's a word
 			
-			LOGGER.debug("new word from dico: " + Parser.offset + ", " + Parser.datas[Parser.offset]);
+			LOGGER.debug("new word from dico: " + parser.offset + ", " + parser.datas[parser.offset]);
 			
 			word.add(new Global(info));
 			wordOrDef = 1;
@@ -151,7 +152,7 @@ public class Dictionary extends Common {
 		else
 		{ // It's a definition
 		 	
-		 	LOGGER.debug("new def from dico: " + Parser.offset + ", " + Parser.datas[Parser.offset]);
+		 	LOGGER.debug("new def from dico: " + parser.offset + ", " + parser.datas[parser.offset]);
 			
 			def.add(new Global(info));
 			wordOrDef = 0;

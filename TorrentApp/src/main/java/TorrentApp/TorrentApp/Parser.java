@@ -16,13 +16,12 @@ public class Parser extends Common
 	// Attributes //
 	////////////////
 	
-	public static long fileSize;			 // The file size
-	public static byte[] datas;				 // The data that the file contains
-	public static int offset;				 // The cursor position in the file
+	public long fileSize;			 		 // The file size
+	public byte[] datas;				 	 // The data that the file contains
+	public int offset;				 		 // The cursor position in the file
 	protected File torrentFile;		  	     // The current torrent file
-	protected Vector <Global> torrentParsed; // An array that contains every parsed info
-	protected Vector <Object> wordSend;
-	protected Vector <Object> defSend;
+	protected Vector <Global> parsedInfo; 	 // An array that contains every parsed info
+	protected Vector <Peer> peerList;		 // A list containing all the peers
 	private static final Logger LOG = Logger.getLogger(Parser.class);
 
 	
@@ -33,9 +32,18 @@ public class Parser extends Common
 	public Parser(String torrentFileName)
 	{
 		torrentFile = new File(torrentFileName);
-		torrentParsed = new Vector<Global>();
-		wordSend= new Vector<Object>();
-		defSend= new Vector<Object>();
+		fileSize = torrentFile.length();
+		parsedInfo = new Vector<Global>();
+		offset = 0;
+	}
+	
+	
+	
+	public Parser(byte[] p_datas)
+	{
+		parsedInfo = new Vector<Global>();
+		datas = p_datas;
+		fileSize = p_datas.length;
 		offset = 0;
 	}
 	
@@ -51,8 +59,6 @@ public class Parser extends Common
 		{
 			LOG.info("Read all file");
 
-			fileSize = torrentFile.length(); // Size of the file
-
 			datas = new byte [(int)fileSize];
 			
 			FileInputStream iosTorrent = new FileInputStream (torrentFile);
@@ -62,11 +68,11 @@ public class Parser extends Common
 			LOG.info("\n\nEnd of File, nombre de caractères: " + fileSize + "\n\n");
 			
 			System.out.println("Parse data\n");
-			parseData();
+			parseData(this);
 			
-			for (int i = 0; i < torrentParsed.size(); i++)
+			for (int i = 0; i < parsedInfo.size(); i++)
 			{
-				torrentParsed.elementAt(i).printGlobal();
+				parsedInfo.elementAt(i).printGlobal();
 			}
 
 			//getDicoCombinationFromString ("files", null); // Ceci est un exemple
@@ -110,7 +116,7 @@ public class Parser extends Common
 		
 		for (i = DicoInfo.beginOffset; i < DicoInfo.endOffset; i++)
 		{ // Extracts the correct data from the torrent file
-			bencodedInfo [j] = Parser.datas [i];
+			bencodedInfo [j] = datas [i];
 			j++;
 		}
 		
@@ -122,7 +128,7 @@ public class Parser extends Common
 		return bencodedInfo;
 	}
 	
-
+	
 	
 	@SuppressWarnings("unchecked")
 	public <T> T getDicoCombinationFromString(String target, Dictionary temp)
@@ -134,11 +140,11 @@ public class Parser extends Common
 		if (temp == null)
 		{ // We are searching for the first Dictionary
 			
-			for (index = 0; index < torrentParsed.size(); index++)
+			for (index = 0; index < parsedInfo.size(); index++)
 			{
-				if (torrentParsed.elementAt(index).getType() == "Dictionary")
+				if (parsedInfo.elementAt(index).getType() == "Dictionary")
 				{
-					dicoRecup = torrentParsed.elementAt(index).aDico;
+					dicoRecup = parsedInfo.elementAt(index).aDico;
 					break;
 				}
 			}
@@ -156,8 +162,6 @@ public class Parser extends Common
 			if(dicoRecup.getWord(index).equals(target))
 			{ // We found it
 				defRecup = dicoRecup.getWordDefinition(index);
-				wordSend.add(dicoRecup.getWord(index));
-				defSend.add(defRecup);
 				break;
 			}
 			
@@ -175,8 +179,6 @@ public class Parser extends Common
 				{ // It means that the word was in reality a definition
 					
 					defRecup = dicoRecup.getWordDefinition(index);
-					wordSend.add(dicoRecup.getWord(index));
-					defSend.add(defRecup);
 					break;
 				}
 				
@@ -184,18 +186,14 @@ public class Parser extends Common
 				{ // We have found another Dictionary. So we use a recursive method to search in this Dictionary
 					
 					defRecup = getDicoCombinationFromString (target, (Dictionary) dicoRecup.getWordDefinition(index));
-					wordSend.add(dicoRecup.getWord(index));
-					defSend.add(defRecup);
-					if (defRecup != null ) break; // If it breaks that mean we have found the definition of word
+					if (defRecup != null ) break; // If it breaks that mean we have found the word definition
 				}
 				
 				else if (dicoRecup.getWordDefinition(index).getClass().toString().equals("class TorrentApp.TorrentApp.List"))
 				{ // We have found another List. So we use a recursive method to search in this List
 					
 					defRecup = getStringFromList (target, (List) dicoRecup.getWordDefinition(index));
-					wordSend.add(dicoRecup.getWord(index));
-					defSend.add(defRecup);
-					if (defRecup != null ) break; // If it breaks that mean we have found the definition of word
+					if (defRecup != null ) break; // If it breaks that mean we have found the word definition
 				}
 			}
 		}
@@ -203,6 +201,8 @@ public class Parser extends Common
 		if (defRecup != null) System.out.println("\n\nMot: " + dicoRecup.getWord(index) + "\nValeur: " + defRecup);
 		return (T) defRecup;
 	}
+	
+	
 	
 	@SuppressWarnings("unchecked")
 	public <T> T getStringFromList (String target, List temp)
@@ -250,7 +250,7 @@ public class Parser extends Common
 	@Override
 	public void doCorrespondingDicoCreation()
 	{
-		torrentParsed.add(new Global(new Dictionary(this)));
+		parsedInfo.add(new Global(new Dictionary(this)));
 	}
 
 
@@ -258,7 +258,7 @@ public class Parser extends Common
 	@Override
 	public void doCorrespondingListCreation()
 	{
-		torrentParsed.add(new Global(new List(this)));
+		parsedInfo.add(new Global(new List(this)));
 	}
 
 	
@@ -266,6 +266,6 @@ public class Parser extends Common
 	@Override
 	public void doCorrespondingAction(String info)
 	{
-		torrentParsed.add(new Global(info));
+		parsedInfo.add(new Global(info));
 	}
 }

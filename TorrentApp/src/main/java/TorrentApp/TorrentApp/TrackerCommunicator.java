@@ -15,15 +15,16 @@ public class TrackerCommunicator {
 	private String charset;
 	private String info_hash;
 	private String peer_id;
-	private String ip;
+	//private String ip;
 	private String port;
 	private int uploaded;
 	private int downloaded;
 	private int left;
 	private String event;
+	private int compact;
 	private static final Logger LOG = Logger.getLogger(TrackerCommunicator.class);
 	
-	public TrackerCommunicator(String url, String info_hash, String peer_id,/* String ip,*/ String port, int uploaded, int downloaded, int left, String event)
+	public TrackerCommunicator(String url, String info_hash, String peer_id,/* String ip,*/ String port, int uploaded, int downloaded, int left, String event, int compact)
 	{
 		this.url = url;
 		this.charset = "gzip";
@@ -35,15 +36,16 @@ public class TrackerCommunicator {
 		this.downloaded = downloaded;
 		this.left = left;
 		this.event = event;
+		this.compact = compact;
 	}
 	
 	
 	
-	public TrackerCommunicator(String url, byte[] info_hash, String peer_id,/* String ip,*/ String port, int uploaded, int downloaded, int left, String event)
+	public TrackerCommunicator(String url, byte[] info_hash, String peer_id,/* String ip,*/ String port, int uploaded, int downloaded, int left, String event, int compact)
 	{
 		this.url = url;
 		this.charset = "gzip";
-		this.info_hash = encodeHashB(DigestUtils.sha1(info_hash));
+		this.info_hash = encodeHash(Common.byteToHex(DigestUtils.sha1(info_hash)));
 		this.peer_id = peer_id;
 		//this.ip = ip;
 		this.port = port;
@@ -51,22 +53,22 @@ public class TrackerCommunicator {
 		this.downloaded = downloaded;
 		this.left = left;
 		this.event = event;
+		this.compact = compact;
 	}
 	
-	public String HTTPGet()
+	public byte[] HTTPGet()
 	{
 		String query = "";
-		String infoTracker = "Fin co";
-		System.out.println("COUCOU");
-		query = url+"?"+"info_hash="+info_hash+"&peer_id="+peer_id+"&port="+port+"&uploaded="+uploaded+"&downloaded="+downloaded+"&left="+left+"&event="+event;
+		query = url+"?"+"info_hash="+info_hash+"&peer_id="+peer_id+"&port="+port+"&uploaded="+uploaded+"&downloaded="+downloaded+"&left="+left+"&event="+event+"&compact="+compact;
 		System.out.println(query);
 		try{
-			//Création de la connexion
+			// Création de la connexion
 			URL urlTracker = new URL(query); //l'url du tracker
 			HttpURLConnection connection = (HttpURLConnection) urlTracker.openConnection(); //Ouverture de la connexion avec le tracker
 			connection.setRequestMethod("GET"); //On cherche à faire un GET
 			connection.setRequestProperty("Accept-Charset", charset); //On précise le charset utf-8
-			//connection.setRequestProperty("Host", "t411.download");
+			//System.out.println(url.substring(url.indexOf("//", 0) + 2, url.indexOf("/", url.indexOf("//", 0) + 2)));
+			//connection.setRequestProperty("Host", url.substring(url.indexOf("//", 0) + 2, url.indexOf("/", url.indexOf("//", 0) + 2)));
 			System.out.println("Connection");
 		
 			//Requête
@@ -88,29 +90,28 @@ public class TrackerCommunicator {
 		    }
 		    out.close();
 		    response.close();
-		    byte[] responseB = out.toByteArray();
-		    for (int i = 0; i < responseB.length; i++)
+		    byte[] reponseB = out.toByteArray();
+		    for (int i = 0; i < reponseB.length; i++)
 		    {
-		    	System.out.print((char)responseB[i]);
+		    	System.out.print((char)reponseB[i]);
 		    }
-		    System.out.println("");
-		    /*
-			while((line = reponse.read()) != null){ //Récupération de la réponse
-				buffer.append(line);
-				buffer.append('\r');
-			}*/
-			response.close();
-			//infoTracker = buffer.toString(); //Traduction de la réponse en string
-		}catch(Exception e) {
+		    System.out.println();
+		    
+			LOG.debug (Common.byteToHex(reponseB));
+
+			return reponseB;
+			
+		}
+		catch(Exception e)
+		{
 			e.printStackTrace();
 			return null;
 		}
-		return infoTracker;
 	}
 	
 	
 	
-	public static String encodeHash (String hexHash)
+	public String encodeHash (String hexHash)
 	{ // Encode the given string to the Bittorrent request form  
 		
 		String encodedHash = ""; // The final encoded hash
@@ -132,37 +133,16 @@ public class TrackerCommunicator {
 			
 			if ((realHex >= 48 && realHex <= 57) || (realHex >= 65 && realHex <= 90) || (realHex >= 97 && realHex <= 122) || realHex == 45 || realHex == 46 || realHex == 95 || realHex == 126)
 			{ // The integer value is the ASCII of one of the following character: "0-9", "A-Z", "a-z", "-", ".", "_", "~"
-				encodedHash += (char) realHex;
+				encodedHash += ((char) realHex);
 			}
 			else
 			{ // The integer value is considered as a non-safe value so we keep its hexadecimal form
-				encodedHash += "%" + hexInfo;
+				encodedHash += "%" + hexInfo.toLowerCase();
 			}
 		}
 		
 		LOG.debug(encodedHash);
 		
 		return encodedHash;
-	}
-	
-	
-	
-	public static String encodeHashB (byte[] hash)
-	{ // Encode the given bytes to the Bittorrent request form
-		
-		char[] hexArray = "0123456789ABCDEF".toCharArray();
-	
-		char[] hexChars = new char[hash.length * 2];
-		
-	    for ( int j = 0; j < hash.length; j++ )
-	    {
-	        int v = hash[j] & 0xFF; // Copies a bit to the result if it exists in both operands
-	        hexChars[j * 2] = hexArray[v >>> 4]; // The left operands value is moved right by the number of bits specified by the right operand and shifted values are filled up with zeros.
-	        hexChars[j * 2 + 1] = hexArray[v & 0x0F];
-	    }
-		
-	    LOG.debug(new String(hexChars));
-		
-		return encodeHash(new String(hexChars));
 	}
 }

@@ -21,7 +21,7 @@ public class List extends Common
 	{
 		parser = p_parser;
 		list = new Vector<Global> ();
-		parseData();
+		parseData(parser);
 	}
 
 	
