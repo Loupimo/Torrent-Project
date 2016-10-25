@@ -2,9 +2,17 @@ package TorrentApp.TorrentApp;
 
 import java.io.BufferedInputStream;
 import java.io.ByteArrayOutputStream;
+import java.io.IOException;
 import java.io.InputStream;
+import java.math.BigInteger;
+import java.net.DatagramPacket;
+import java.net.DatagramSocket;
 import java.net.HttpURLConnection;
+import java.net.InetAddress;
+import java.net.SocketException;
 import java.net.URL;
+import java.net.UnknownHostException;
+import java.nio.ByteBuffer;
 
 import org.apache.commons.codec.digest.DigestUtils;
 import org.apache.log4j.Logger;
@@ -86,7 +94,7 @@ public class TrackerCommunicator {
 		    while (-1!=(n=response.read(buf)))
 		    {
 
-		    out.write(buf, 0, n);
+		    	out.write(buf, 0, n);
 		    }
 		    out.close();
 		    response.close();
@@ -109,7 +117,71 @@ public class TrackerCommunicator {
 		}
 	}
 	
-	
+	public void UDPRequest(String ad ,int Port){
+		try {
+			this.url = ad;//"tracker.ccc.de";//"tracker.coppersurfer.tk"; //type d'url à entrer
+			System.out.println("URL : "+url);
+			
+			//Requête de connexion
+			InetAddress address = InetAddress.getByName(url); //On récupère l'adresse IP en fonction de l'URL
+			long connection_id = Long.decode("0x41727101980"); //Connection_id permet d'identifier le protocole, il doit être initialisé à cette valeur et converti en big endian
+			int action = 0; //action = 0 pour une requête de connexion
+			int transaction_id = 1000; //valeur choisie au hasard
+			byte[] buffer = ByteBuffer.allocate(16).putLong(connection_id).putInt(action).putInt(transaction_id).array(); //buffer doit contenir les 3 valeurs précédentes, c'est le corps de la requête
+			DatagramPacket packet = new DatagramPacket(buffer, buffer.length, address, Port); //Création du paquet UDP, le port 6969 est propre à l'exemple utilisé
+			DatagramSocket socket = new DatagramSocket(); //Ouverture de la socket
+			System.out.println("Question: "+action+" "+transaction_id+" "+connection_id);
+			socket.send(packet); //Envoi du paquet
+			
+			//Réponse du tracker
+			byte[] response = new byte[1024]; //Conteneur de la réponse du tracker
+			DatagramPacket receivePacket = new DatagramPacket(response, response.length); //Paquet réponse du tracker
+			socket.receive(receivePacket); //Réception de la réponse
+			ByteBuffer responseBB = ByteBuffer.wrap(receivePacket.getData(), 0, response.length);//Conversion de la réponse
+			
+			//Récupération des infos de la réponse
+			action = responseBB.getInt();
+			transaction_id = responseBB.getInt();
+			connection_id = responseBB.getLong();
+			System.out.println("Réponse: "+action+" "+transaction_id+" "+connection_id);
+			
+			//Requête announce
+			byte[] announce = ByteBuffer.allocate(200).putLong(connection_id).putInt(action+1).putInt(transaction_id).put(info_hash.getBytes()).put(peer_id.getBytes()).putLong(Long.valueOf(downloaded)).putLong(Long.valueOf(left)).putLong(Long.valueOf(uploaded)).putInt(2).putInt(0).putInt(42).putInt(-1).putShort((short) 6881).array();
+			packet = new DatagramPacket(announce, announce.length, address, Port);
+			System.out.println("Envoi announce");
+			socket.send(packet);
+			
+			//Réponse du tracker
+			response = new byte[1024]; //Conteneur de la réponse du tracker
+			receivePacket = new DatagramPacket(response, response.length); //Paquet réponse du tracker
+			socket.receive(receivePacket); //Réception de la réponse
+			responseBB = ByteBuffer.wrap(receivePacket.getData(), 0, response.length);//Conversion de la réponse
+			
+			//Récupération des infos de la réponse
+			action = responseBB.getInt();
+			transaction_id = responseBB.getInt();
+			int interval = responseBB.getInt();
+			int leechers = responseBB.getInt();
+			int seeders = responseBB.getInt();
+			System.out.println("réponse announce: Action: "+action+" Transaction_id: "+transaction_id+" Interval: "+interval+" Leechers: "+leechers+" Seeders: "+seeders);
+			int IP = responseBB.getInt();
+			short p = responseBB.getShort();
+			while(IP != 0){
+				System.out.println("IP: "+InetAddress.getByAddress(BigInteger.valueOf(IP).toByteArray())+" Port: "+p);
+				IP = responseBB.getInt();
+				p = responseBB.getShort();
+			}
+		} catch (UnknownHostException e) {
+			System.out.println("Erreur hôte");
+			e.printStackTrace();
+		} catch (SocketException e) {
+			System.out.println("Erreur socket");
+			e.printStackTrace();
+		} catch (IOException e) {
+			System.out.println("Erreur envoi");
+			e.printStackTrace();
+		}
+	}
 	
 	public String encodeHash (String hexHash)
 	{ // Encode the given string to the Bittorrent request form  
