@@ -12,7 +12,8 @@ public class TrackerResponse
 	protected byte[] responseData;
 	protected Parser parserResponse;
 	protected Vector <Peer> peerList;
-	
+	private String info_hash; 
+	private String peer_id;
 	
 	//////////////////
 	// Constructors //
@@ -24,6 +25,16 @@ public class TrackerResponse
 		peerList = new Vector <Peer>();
 		parserResponse = new Parser (responseData);
 		parserResponse.parseData(parserResponse);
+	}
+	
+	TrackerResponse (byte[] p_responseData,String info_hash, String peer_id)
+	{
+		responseData = p_responseData;
+		peerList = new Vector <Peer>();
+		parserResponse = new Parser (responseData);
+		parserResponse.parseData(parserResponse);
+		this.info_hash=info_hash;
+		this.peer_id=peer_id;
 	}
 	
 	
@@ -68,7 +79,7 @@ public class TrackerResponse
 				{ // We have all the info to create the peer
 					ipAddress = ipAddress.substring(0, ipAddress.length()-1); // We deletes the last "." at the end of the string
 					delimiter = 0; // Reset the delimiter
-					peerList.add(new Peer (ipAddress, port));
+					peerList.add(new Peer (ipAddress, port,info_hash, peer_id));
 					System.out.println("Peer n°" + peerList.size() + ": IP = " + ipAddress + ", Port: " + port);
 					ipAddress = hexToInt + "."; // Don't forget that we still have an unused hexToInt value
 					port = "";

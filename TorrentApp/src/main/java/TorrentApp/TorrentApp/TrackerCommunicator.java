@@ -13,8 +13,8 @@ import org.apache.log4j.Logger;
 public class TrackerCommunicator {
 	private String url;
 	private String charset;
-	private String info_hash;
-	private String peer_id;
+	public static String info_hash;
+	private static String peer_id;
 	//private String ip;
 	private String port;
 	private int uploaded;
@@ -84,9 +84,8 @@ public class TrackerCommunicator {
 		    byte[] buf = new byte[1024];
 		    int n = 0;
 		    while (-1!=(n=response.read(buf)))
-		    {
-
-		    out.write(buf, 0, n);
+		    {	    	
+		    out.write(buf, 0, n);	
 		    }
 		    out.close();
 		    response.close();
@@ -144,5 +143,13 @@ public class TrackerCommunicator {
 		LOG.debug(encodedHash);
 		
 		return encodedHash;
+	}
+	
+	public String getInfo_hash() {
+		return info_hash;
+	}
+	
+	public String getPeer_id(){
+		return peer_id;
 	}
 }
