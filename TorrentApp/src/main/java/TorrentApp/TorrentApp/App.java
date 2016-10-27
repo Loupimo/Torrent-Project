@@ -30,11 +30,14 @@ public class App
 		{
 			parse.readFile();
 			System.out.println("\n\nFin Parser");
-			
+			/*
 			TrackerCommunicator tc = new TrackerCommunicator((String) parse.getDicoCombinationFromString("announce", null), parse.getBencodedDicoInfo(), "-UT3490-n%a6c%15%9d%ae%fd%1c%3e%0fd%aa", "50755", 0, 0, 10000, "started", 1);
 			TrackerResponse tr = new TrackerResponse (tc.HTTPGet());
-			tr.createPeerList();
+			tr.createPeerList();*/
 			//new BDDLinker ("jdbc:mysql://localhost:8000/", "jul", "root", parse);
+			
+			Tree arbo = new Tree (parse);
+			arbo.createArbo();
 		}
 	}
 }
