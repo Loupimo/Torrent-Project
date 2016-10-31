@@ -20,8 +20,10 @@ public class App
 			//String oo = "TorrentTest\\Jennifer_Lopez_-_Hitz_Music_Video_2014_1080pHD_[TG-Encoder_www.torrentgarden.com].torrent"; // UDP
 			//String oo = "TorrentTest\\Vicious_Rumors_-_Live_You_To_Death.torrent"; // the.piratebay.org (unknown host problem)
 			//String oo = "TorrentTest\\lubuntu-16.10-desktop-amd64.iso.torrent"; // Needs Compact set to 1
-			String oo = "TorrentTest\\Game_Dev_Tycoon_v1.4.15_(2-click_run).torrent"; // Anounce-list présent: à gérer
+			//String oo = "TorrentTest\\Game_Dev_Tycoon_v1.4.15_(2-click_run).torrent"; // Anounce-list présent: à gérer
 			//String oo = "TorrentTest\\batman-unlimited-mechs-vs-mutants-french-webrip-2016.torrent"; // 
+			//String oo = "TorrentTest\\David Morell - Les conjures de la pierre.epub.torrent";
+			String oo = "TorrentTest\\David Morrell-Portrait de l'assassin en artiste.epub.torrent";
 			
 			parse = new Parser(oo);
 		}
