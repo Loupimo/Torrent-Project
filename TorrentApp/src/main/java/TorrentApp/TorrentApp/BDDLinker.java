@@ -137,7 +137,7 @@ public class BDDLinker
 		    /* Connection to the database */
 		    System.out.println("Try to connect to database");
 		    String connectionString = "jdbc:mysql://" + this.serverName;
-		    if (!this.portNumber.equals("")) connectionString += ":" + this.portNumber;
+		    if (!this.portNumber.equals("") && !this.portNumber.equals("-1")) connectionString += ":" + this.portNumber;
 		    connectionString +=  "/" + this.dbName;
 		    conn = (Connection) DriverManager.getConnection(connectionString, connectionProps);
 		    System.out.println("Connected to database");

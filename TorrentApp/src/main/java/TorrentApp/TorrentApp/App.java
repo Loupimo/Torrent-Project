@@ -35,9 +35,9 @@ public class App
 			TrackerResponse tr = new TrackerResponse (tc.HTTPGet());
 			tr.createPeerList();*/
 			String [] parameters = {"localhost", "", "Symfony", "root", "root", "Jul'o", "Je viens de l'appli"}; // Stores the default parameters for the BDD. In order: host, port, dbName, userName, password, author, description
-			for (int i = 0; i < args.length; i++, argsCount++)
+			for (int i = 1; i < args.length; i++)
 			{
-				parameters[i] = args[argsCount];
+				parameters[i-1] = args[i];
 			}
 			new BDDLinker (parameters[0], parameters[1], parameters[2], parameters[3], parameters[4], parameters[5], parameters[6], parse);
 			
