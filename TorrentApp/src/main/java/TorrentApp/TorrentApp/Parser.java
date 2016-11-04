@@ -234,7 +234,7 @@ public class Parser extends Common
 					if (objectRecup != null) break;
 				}
 				
-				else if (temp.list.get(index).getType() == "String")
+				else if (temp.list.get(index).getType() == "String" && temp.list.get(index).aString.equals(target))
 				{ // We found it
 					return (T) temp.list.get(index).aString;
 				}
